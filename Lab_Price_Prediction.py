@@ -74,7 +74,7 @@ def get_accuracy(x, y): # Get accuracy of data with respect to the predictions
 def create_model(neurons):
     
     #Model Creation
-    activation_functions = ['relu', 'linear']#['relu', 'linear']
+    activation_functions = ['relu', 'linear']
     # Input 1: Solar Load Factor
     input_1 = keras.Input(shape=(7,24),name="solar_input")
     # Input 2: Wind Load Factor
