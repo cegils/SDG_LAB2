@@ -371,7 +371,6 @@ dat_1['Prices'] = pd.DataFrame(dat)
 header = ["Prices"]
 dat_1.to_csv('predictions.csv', columns = header,index=False)
 
-#End Mana
 
 ### End Exercise 2
 
