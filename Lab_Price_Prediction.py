@@ -66,6 +66,69 @@ def upload_files():
     
     return "Files Uploaded"
 
+def upload_test_data():
+    
+    #Uploading Prices Data
+    data_belpex_w1 = pd.read_csv(r'belpex_week_1.csv') #Upload File
+    data_belpex_w2 = pd.read_csv(r'belpex_week_2.csv') #Upload File
+    data_belpex_w3 = pd.read_csv(r'belpex_week_3.csv') #Upload File
+    data_w1_b = []
+    data_w2_b = []
+    data_w3_b = []
+    
+    lags_test = list(range(0, 24*7, 24)) # Create the lags of the time series
+
+    
+    for lag in lags_test:
+        data_w1_b.append(data_belpex_w1[lag:lag+24].value.values)
+        data_w2_b.append(data_belpex_w2[lag:lag+24].value.values)
+        data_w3_b.append(data_belpex_w3[lag:lag+24].value.values)
+    
+    prices_input = np.array([np.array(data_w1_b), np.array(data_w2_b), np.array(data_w3_b)])
+    
+    #Uploading Solar Data
+
+    #create DataFrame with hourly index
+    data_solar_w1 = pd.read_csv(r'solar_week_1.csv') #Upload File
+    data_solar_w1.set_index(pd.date_range(datetime.datetime(2020, 1, 1, 0, 0), datetime.datetime(2020, 1, 8, 23, 45), freq='15min'),inplace=True)
+    data_solar_w1 = data_solar_w1.resample('1H').mean().values.reshape(-1, 24)
+    data_solar_w2 = pd.read_csv(r'solar_week_2.csv') #Upload File
+    data_solar_w2.set_index(pd.date_range(datetime.datetime(2020, 1, 1, 0, 0), datetime.datetime(2020, 1, 8, 23, 45), freq='15min'),inplace=True)
+    data_solar_w2 = data_solar_w2.resample('1H').mean().values.reshape(-1, 24)
+    data_solar_w3 = pd.read_csv(r'solar_week_2.csv') #Upload File
+    data_solar_w3.set_index(pd.date_range(datetime.datetime(2020, 1, 1, 0, 0), datetime.datetime(2020, 1, 8, 23, 45), freq='15min'),inplace=True)
+    data_solar_w3 = data_solar_w3.resample('1H').mean().values.reshape(-1, 24)
+    
+    data_solar_w1 = np.delete(data_solar_w1, 0, axis=0) #Delete the first day, because is not needed
+    data_solar_w2 = np.delete(data_solar_w2, 0, axis=0)
+    data_solar_w3 = np.delete(data_solar_w3, 0, axis=0)
+
+    solar_input = np.array([data_solar_w1, data_solar_w2, data_solar_w3])
+    
+    #Uploading Wind Data
+    
+    #Uploading Solar Data
+
+    #create DataFrame with hourly index
+    data_wind_w1 = pd.read_csv(r'wind_week_1.csv') #Upload File
+    data_wind_w1.set_index(pd.date_range(datetime.datetime(2020, 1, 1, 0, 0), datetime.datetime(2020, 1, 8, 23, 45), freq='15min'),inplace=True)
+    data_wind_w1 = data_wind_w1.resample('1H').mean().values.reshape(-1, 24)
+    data_wind_w2 = pd.read_csv(r'wind_week_2.csv') #Upload File
+    data_wind_w2.set_index(pd.date_range(datetime.datetime(2020, 1, 1, 0, 0), datetime.datetime(2020, 1, 8, 23, 45), freq='15min'),inplace=True)
+    data_wind_w2 = data_wind_w2.resample('1H').mean().values.reshape(-1, 24)
+    data_wind_w3 = pd.read_csv(r'wind_week_2.csv') #Upload File
+    data_wind_w3.set_index(pd.date_range(datetime.datetime(2020, 1, 1, 0, 0), datetime.datetime(2020, 1, 8, 23, 45), freq='15min'),inplace=True)
+    data_wind_w3 = data_wind_w3.resample('1H').mean().values.reshape(-1, 24)
+    
+    data_wind_w1 = np.delete(data_wind_w1, 0, axis=0) #Delete the first day, because is not needed
+    data_wind_w2 = np.delete(data_wind_w2, 0, axis=0)
+    data_wind_w3 = np.delete(data_wind_w3, 0, axis=0)
+    
+    wind_input = np.array([data_wind_w1, data_wind_w2, data_wind_w3])
+    
+    return prices_input, wind_input, wind_input
+    
+
 ##Get Accuracy (Not used)
 def get_accuracy(x, y): # Get accuracy of data with respect to the predictions
     return np.mean(np.abs(x - y))/np.mean(x)
@@ -148,7 +211,7 @@ data_dummy = pd.DataFrame(index=df_belpex.index, data=d) #dummy for comparison
 
 ##Showing figures for obtained data
 start = datetime.datetime(2016, 1, 1, 0, 0) #New start and end date
-end = datetime.datetime(2016, 1, 14, 23, 45)
+end = datetime.datetime(2016, 12, 30, 23, 45)
 
 #Data from solar, wind and belpex
 plt.figure()
@@ -165,7 +228,7 @@ plt.show()
 
 #Data from belpex 2016-2017
 plt.figure()
-data.belpex.plot(grid=True)
+data.wind.plot(grid=True)
 plt.show()
 
 ##Removing outliers of belpex (to increase accuracy of the training set)
@@ -213,7 +276,7 @@ index = data.index
 n_hours = 24
 start_date_target = datetime.datetime(2017, 1, 2, 0, 0)
 end_date_target = datetime.datetime(2017, 1, 8, 23, 45)
-start_date_input_res = datetime.datetime(2017, 1, 2, 0, 0) #Start/End Dates for Prices (one day shift)
+start_date_input_res = datetime.datetime(2017, 1, 2, 0, 0) #Start/End Dates for Prices (one day shift) 
 end_date_input_res = datetime.datetime(2017, 1, 8, 23, 45)
 start_date_input_prices = datetime.datetime(2017, 1, 1, 0, 0) #Start/End Dates for Prices (one day shift)
 end_date_input_prices = datetime.datetime(2017, 1, 7, 23, 45)
@@ -243,6 +306,9 @@ train_target_price = np.array(train_target_price)
 data['day_in_year'] = data.index.dayofyear ##Not used
 data = data.loc[index, :]
 data = data.dropna()
+
+# Test Data
+
 
 
 # Split data in Training and test Data (Not that necessary, using validation split directly in .fit method)
@@ -322,6 +388,9 @@ plt.show()
 ## Price Prediction Model 1 vs Model 2 vs Model 3
 
 #RES Data Frames for testing
+
+test_data_final = upload_test_data()
+
 solar_pred = s_test
 wind_pred = w_test
 #PRICES Data Frames for Testing
@@ -336,21 +405,22 @@ predict_nn_model_3 = model_3.predict({"solar_input": solar_pred, "w_input": wind
 
 ## Plots
 plt.figure()
+plt.title(color='Black', label='Comparison with training data')
 plt.subplot(311)
 plt.plot(p_target_test[:1,:7,:].flatten(), color='blue', label='actual price')
-plt.plot(predict_nn_model_1[:1,:7,:].flatten(), color='red', label='forecast Model 1')
+plt.plot(predict_nn_model_1[:1,:7,:].flatten(), color='red', label='forecast Model 1, mse: %.f2' % mse_1)
 plt.xlabel('Hour of the Day')
 plt.ylabel('Prices')
 plt.legend(frameon=True)
 plt.subplot(312)
 plt.plot(p_target_test[:1,:7,:].flatten(), color='blue', label='actual price')
-plt.plot(predict_nn_model_2[:1,:7,:].flatten(), color='green', label='forecast Model 2')
+plt.plot(predict_nn_model_2[:1,:7,:].flatten(), color='green', label='forecast Model 2, mse: %.f2' % mse_2)
 plt.xlabel('Hour of the Day')
 plt.ylabel('Prices')
 plt.legend(frameon=True)
 plt.subplot(313)
 plt.plot(p_target_test[:1,:7,:].flatten(), color='blue', label='actual price')
-plt.plot(predict_nn_model_3[:1,:7,:].flatten(), color='black', label='forecast Model 3')
+plt.plot(predict_nn_model_3[:1,:7,:].flatten(), color='black', label='forecast Model 3, mse: %.f2' % mse_3)
 plt.xlabel('Hour of the Day')
 plt.ylabel('Prices')
 plt.legend(frameon=True)
@@ -360,7 +430,34 @@ print('- Mean squared error for Neural Network 1 is %.4f' % mse_1 + ' @ Iteratio
 print('- Mean squared error for Neural Network 2 is %.4f' % mse_2 + ' @ Iteration ' + str(len(output_training_2.history['loss'])))
 print('- Mean squared error for Neural Network 3 is %.4f' % mse_3 + ' @ Iteration ' + str(len(output_training_3.history['loss'])))
 
-##Print Results to csv
+##Print Results to csv (Final Results with data provided by TA's)
+
+solar_pred = test_data_final[1]
+wind_pred = test_data_final[2]
+#PRICES Data Frames for Testing
+prices_pred = test_data_final[0]
+
+predict_nn_model_3 = model_3.predict({"solar_input": solar_pred, "w_input": wind_pred, "plweek_input": prices_pred})
+
+## Plots
+plt.figure()
+plt.title(color='Black', label='Comparison with training data')
+plt.subplot(311)
+plt.plot(predict_nn_model_3[:1,:1,:].flatten(), color='red', label='Day predicted w1')
+plt.xlabel('Hour of the Day')
+plt.ylabel('Prices')
+plt.legend(frameon=True)
+plt.subplot(312)
+plt.plot(predict_nn_model_3[:1,:1,:].flatten(), color='green', label='Day predicted w2')
+plt.xlabel('Hour of the Day')
+plt.ylabel('Prices')
+plt.legend(frameon=True)
+plt.subplot(313)
+plt.plot(predict_nn_model_3[:1,:1,:].flatten(), color='black', label='Day redicted w3')
+plt.xlabel('Hour of the Day')
+plt.ylabel('Prices')
+plt.legend(frameon=True)
+plt.show()
 
 pred_1 = predict_nn_model_3[:1,:1,:].reshape(24).tolist()
 pred_2 = predict_nn_model_3[:1,1:2,:].reshape(24).tolist()
