@@ -84,6 +84,7 @@ def upload_test_data():
         data_w2_b.append(data_belpex_w2[lag:lag+24].value.values)
         data_w3_b.append(data_belpex_w3[lag:lag+24].value.values)
     
+    
     prices_input = np.array([np.array(data_w1_b), np.array(data_w2_b), np.array(data_w3_b)])
     
     #Uploading Solar Data
@@ -95,7 +96,7 @@ def upload_test_data():
     data_solar_w2 = pd.read_csv(r'solar_week_2.csv') #Upload File
     data_solar_w2.set_index(pd.date_range(datetime.datetime(2020, 1, 1, 0, 0), datetime.datetime(2020, 1, 8, 23, 45), freq='15min'),inplace=True)
     data_solar_w2 = data_solar_w2.resample('1H').mean().values.reshape(-1, 24)
-    data_solar_w3 = pd.read_csv(r'solar_week_2.csv') #Upload File
+    data_solar_w3 = pd.read_csv(r'solar_week_3.csv') #Upload File
     data_solar_w3.set_index(pd.date_range(datetime.datetime(2020, 1, 1, 0, 0), datetime.datetime(2020, 1, 8, 23, 45), freq='15min'),inplace=True)
     data_solar_w3 = data_solar_w3.resample('1H').mean().values.reshape(-1, 24)
     
@@ -116,7 +117,7 @@ def upload_test_data():
     data_wind_w2 = pd.read_csv(r'wind_week_2.csv') #Upload File
     data_wind_w2.set_index(pd.date_range(datetime.datetime(2020, 1, 1, 0, 0), datetime.datetime(2020, 1, 8, 23, 45), freq='15min'),inplace=True)
     data_wind_w2 = data_wind_w2.resample('1H').mean().values.reshape(-1, 24)
-    data_wind_w3 = pd.read_csv(r'wind_week_2.csv') #Upload File
+    data_wind_w3 = pd.read_csv(r'wind_week_3.csv') #Upload File
     data_wind_w3.set_index(pd.date_range(datetime.datetime(2020, 1, 1, 0, 0), datetime.datetime(2020, 1, 8, 23, 45), freq='15min'),inplace=True)
     data_wind_w3 = data_wind_w3.resample('1H').mean().values.reshape(-1, 24)
     
@@ -125,6 +126,39 @@ def upload_test_data():
     data_wind_w3 = np.delete(data_wind_w3, 0, axis=0)
     
     wind_input = np.array([data_wind_w1, data_wind_w2, data_wind_w3])
+    
+    #Print Results
+    plt.figure()
+    plt.plot(data_wind_w1[:7,:].flatten(), color='blue', label='week 1')
+    plt.plot(data_wind_w2[:7,:].flatten(), color='green', label='week 2')
+    plt.plot(data_wind_w3[:7,:].flatten(), color='red', label='week 3')
+    plt.ylabel('Output Power')
+    plt.xlabel('Hours of the Week')
+    plt.legend(frameon=True)
+    plt.title(color='Black', label='Wind Data Normalized')
+    plt.show()
+    
+    #Print Results
+    plt.figure()
+    plt.plot(data_solar_w1[:7,:].flatten(), color='blue', label='week 1')
+    plt.plot(data_solar_w2[:7,:].flatten(), color='green', label='week 2')
+    plt.plot(data_solar_w3[:7,:].flatten(), color='red', label='week 3')
+    plt.ylabel('Output Power')
+    plt.xlabel('Hours of the Week')
+    plt.legend(frameon=True)
+    plt.title(color='Black', label='Solar Data Normalized')
+    plt.show()
+    
+    #Print Results
+    plt.figure()
+    plt.plot(prices_input[:1,:7,:].flatten(), color='blue', label='week 1')
+    plt.plot(prices_input[1:2,:7,:].flatten(), color='green', label='week 2')
+    plt.plot(prices_input[2:3,:7,:].flatten(), color='red', label='week 3')
+    plt.ylabel('Output Power')
+    plt.xlabel('Hours of the Week')
+    plt.legend(frameon=True)
+    plt.title(color='Black', label='Prices Data')
+    plt.show()
     
     return prices_input, solar_input, wind_input
     
@@ -218,6 +252,7 @@ plt.figure()
 plt.subplot(311)
 plt.plot(data.belpex[start:end], label='belpex')
 plt.legend(frameon=False)
+plt.title(color='Black', label='Data points from solar, wind and belpex 2016-2017')
 plt.subplot(312)
 plt.plot(data.solar[start:end], label='solar')
 plt.legend(frameon=False)
@@ -243,6 +278,7 @@ plt.figure()
 plt.subplot(211)
 plt.plot(data.belpex, label='belpex now')
 plt.legend(frameon=False)
+plt.title(color='Black', label='Belpex comparison before and after eliminating outliers')
 plt.subplot(212)
 plt.plot(data_dummy.belpex, label='belpex old')
 plt.legend(frameon=False)
@@ -383,6 +419,7 @@ plt.plot(epc_3, output_training_3.history['loss'], color='black', label='Loss Mo
 plt.ylabel('Loss')
 plt.xlabel('Epochs')
 plt.legend(frameon=True)
+plt.title(color='Black', label='Loss comparison of models 1, 2 and 3')
 plt.show()
 
 ## Price Prediction Model 1 vs Model 2 vs Model 3
@@ -405,13 +442,13 @@ predict_nn_model_3 = model_3.predict({"solar_input": solar_pred, "w_input": wind
 
 ## Plots
 plt.figure()
-plt.title(color='Black', label='Comparison with training data')
 plt.subplot(311)
 plt.plot(p_target_test[:1,:7,:].flatten(), color='blue', label='actual price')
 plt.plot(predict_nn_model_1[:1,:7,:].flatten(), color='red', label='forecast Model 1, mse: %.2f' % mse_1)
 plt.xlabel('Hour of the Day')
 plt.ylabel('Prices')
 plt.legend(frameon=True)
+plt.title(color='Black', label='Comparison with training data')
 plt.subplot(312)
 plt.plot(p_target_test[:1,:7,:].flatten(), color='blue', label='actual price')
 plt.plot(predict_nn_model_2[:1,:7,:].flatten(), color='green', label='forecast Model 2, mse: %.2f' % mse_2)
@@ -441,12 +478,12 @@ predict_nn_model_3 = model_3.predict({"solar_input": solar_pred, "w_input": wind
 
 ## Plots
 plt.figure()
-plt.title(color='Black', label='Comparison with training data')
 plt.subplot(311)
 plt.plot(predict_nn_model_3[:1,:1,:].flatten(), color='red', label='Day predicted w1')
 plt.xlabel('Hour of the Day')
 plt.ylabel('Prices')
 plt.legend(frameon=True)
+plt.title(color='Black', label='Prediction of prices for week 1, 2 and 3')
 plt.subplot(312)
 plt.plot(predict_nn_model_3[1:2,:1,:].flatten(), color='green', label='Day predicted w2')
 plt.xlabel('Hour of the Day')
