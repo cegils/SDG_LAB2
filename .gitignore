@@ -9,6 +9,9 @@
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
 
+#zip files
+*.zip
+
 # IPython
 profile_default/
 ipython_config.py
